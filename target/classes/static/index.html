@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Week 1 - Data Analysis Report (Java)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 30px;
+    color: #2b2f33;
+  }
+  h1 { margin-bottom: 4px; }
+  .subtitle { color: #666; margin-bottom: 30px; }
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .card h2 {
+    margin-top: 0;
+    font-size: 18px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid #eee;
+  }
+  th { background: #fafafa; color: #555; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-numeric { background: #e3f2fd; color: #1565c0; }
+  .badge-categorical { background: #fff3e0; color: #e65100; }
+  .missing-bar-bg {
+    background: #eee;
+    border-radius: 6px;
+    height: 10px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .missing-bar-fill {
+    background: #e53935;
+    height: 100%;
+  }
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 800px) {
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+  .loading { color: #888; font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>📊 Data Insights Report</h1>
+<div class="subtitle">Week 1 — Java-for-Data-Analysis task</div>
+
+<div class="card">
+  <h2>1. Data Summary (equivalent of df.describe())</h2>
+  <div id="summary-table" class="loading">Loading...</div>
+</div>
+
+<div class="card">
+  <h2>2. Missing Value Detection (equivalent of df.isnull().sum())</h2>
+  <div id="missing-table" class="loading">Loading...</div>
+</div>
+
+<div class="card">
+  <h2>3. Data Type Analysis (equivalent of df.dtypes)</h2>
+  <div id="dtypes-table" class="loading">Loading...</div>
+</div>
+
+<div class="card">
+  <h2>4. Visualizations (equivalent of Matplotlib / Seaborn)</h2>
+  <div class="charts-grid">
+    <div><canvas id="chartMissing"></canvas></div>
+    <div><canvas id="chartDept"></canvas></div>
+    <div><canvas id="chartSalary"></canvas></div>
+    <div><canvas id="chartAgeSalary"></canvas></div>
+  </div>
+</div>
+
+<script>
+const API = ""; // same-origin: Spring Boot serves API + frontend together
+
+async function fetchJson(path) {
+  const res = await 
+
+  (API + path);
+  return res.json();
+}
+
+function badge(type) {
+  return type === "numeric"
+    ? '<span class="badge badge-numeric">numeric</span>'
+    : '<span class="badge badge-categorical">categorical</span>';
+}
+
+async function loadSummary() {
+  const data = await fetchJson("/api/summary");
+  let html = `<table><tr><th>Column</th><th>Type</th><th>Count</th><th>Mean/Top</th><th>Std/Unique</th><th>Min/Most Freq</th><th>Max</th><th>Median</th></tr>`;
+  data.forEach(row => {
+    if (row.type === "numeric") {
+      html += `<tr>
+        <td><b>${row.column}</b></td>
+        <td>${badge(row.type)}</td>
+        <td>${row.count}</td>
+        <td>${row.mean}</td>
+        <td>${row.std}</td>
+        <td>${row.min}</td>
+        <td>${row.max}</td>
+        <td>${row.median}</td>
+      </tr>`;
+    } else {
+      html += `<tr>
+        <td><b>${row.column}</b></td>
+        <td>${badge(row.type)}</td>
+        <td>${row.count}</td>
+        <td>${row.mostFrequent}</td>
+        <td>${row.unique}</td>
+        <td>${row.mostFrequentCount}×</td>
+        <td>-</td>
+        <td>-</td>
+      </tr>`;
+    }
+  });
+  html += `</table>`;
+  document.getElementById("summary-table").innerHTML = html;
+}
+
+async function loadMissing() {
+  const data = await fetchJson("/api/missing");
+  let html = `<table><tr><th>Column</th><th>Missing Count</th><th>Missing %</th><th></th></tr>`;
+  data.forEach(row => {
+    html += `<tr>
+      <td>${row.column}</td>
+      <td>${row.missingCount}</td>
+      <td>${row.missingPercent}%</td>
+      <td style="width:200px">
+        <div class="missing-bar-bg"><div class="missing-bar-fill" style="width:${row.missingPercent}%"></div></div>
+      </td>
+    </tr>`;
+  });
+  html += `</table>`;
+  document.getElementById("missing-table").innerHTML = html;
+
+  // Chart: missing values bar chart
+  new Chart(document.getElementById("chartMissing"), {
+    type: "bar",
+    data: {
+      labels: data.map(d => d.column),
+      datasets: [{ label: "Missing Count", data: data.map(d => d.missingCount), backgroundColor: "#e53935" }]
+    },
+    options: { plugins: { title: { display: true, text: "Missing Values per Column" } } }
+  });
+}
+
+async function loadDtypes() {
+  const data = await fetchJson("/api/dtypes");
+  let html = `<table><tr><th>Column</th><th>Inferred Type</th></tr>`;
+  data.forEach(row => {
+    html += `<tr><td>${row.column}</td><td><code>${row.dtype}</code></td></tr>`;
+  });
+  html += `</table>`;
+  document.getElementById("dtypes-table").innerHTML = html;
+}
+
+async function loadCharts() {
+  const raw = await fetchJson("/api/raw");
+
+  // Chart: count by Department
+  const deptCounts = {};
+  raw.forEach(r => { if (r.Department) deptCounts[r.Department] = (deptCounts[r.Department]||0)+1; });
+  new Chart(document.getElementById("chartDept"), {
+    type: "pie",
+    data: {
+      labels: Object.keys(deptCounts),
+      datasets: [{ data: Object.values(deptCounts), backgroundColor: ["#42a5f5","#66bb6a","#ffa726","#ab47bc"] }]
+    },
+    options: { plugins: { title: { display: true, text: "Employee Count by Department" } } }
+  });
+
+  // Chart: Salary distribution
+  const salaries = raw.map(r => parseFloat(r.Salary)).filter(v => !isNaN(v));
+  new Chart(document.getElementById("chartSalary"), {
+    type: "bar",
+    data: {
+      labels: raw.filter(r=>r.Salary).map(r => r.Name),
+      datasets: [{ label: "Salary", data: salaries, backgroundColor: "#42a5f5" }]
+    },
+    options: { plugins: { title: { display: true, text: "Salary by Employee" } } }
+  });
+
+  // Chart: Age vs Salary 
+  const points = raw.filter(r => r.Age && r.Salary).map(r => ({x: parseFloat(r.Age), y: parseFloat(r.Salary)}));
+  new Chart(document.getElementById("chartAgeSalary"), {
+    type: "scatter",
+    data: { datasets: [{ label: "Age vs Salary", data: points, backgroundColor: "#ab47bc" }] },
+    options: {
+      plugins: { title: { display: true, text: "Age vs Salary" } },
+      scales: { x: { title: { display: true, text: "Age" } }, y: { title: { display: true, text: "Salary" } } }
+    }
+  });
+}
+
+loadSummary();
+loadMissing();
+loadDtypes();
+loadCharts();// here have called all the methods
+</script>
+
+</body>
+</html>

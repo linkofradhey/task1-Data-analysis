@@ -1,0 +1,16 @@
+EmployeeID,Name,Department,Age,Salary,JoiningDate,PerformanceScore
+1,John Smith,Engineering,29,55000,2021-03-15,8.5
+2,Priya Sharma,Marketing,34,48000,2019-07-01,7.2
+3,Wei Chen,Engineering,41,72000,2015-11-23,9.1
+4,Maria Garcia,Sales,26,42000,2022-01-10,6.8
+5,Ahmed Khan,Engineering,,65000,2018-05-30,8.9
+6,Lisa Wong,HR,38,50000,2017-09-12,7.5
+7,David Brown,Sales,45,,2012-02-18,
+8,Sophia Lee,Marketing,31,46000,2020-06-25,7.9
+9,Carlos Ruiz,Engineering,27,58000,2021-08-14,8.2
+10,Emma Davis,HR,,49000,2019-12-01,
+11,Raj Patel,Sales,33,44000,2020-03-19,6.5
+12,Anna Kim,Engineering,29,61000,2019-10-05,8.7
+13,Tom Wilson,Marketing,,47000,2021-04-22,7.1
+14,Nina Patel,Sales,36,43000,2016-07-08,6.9
+15,Omar Farouk,Engineering,30,59000,2020-11-30,8.4
