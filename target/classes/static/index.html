@@ -73,7 +73,7 @@
 <body>
 
 <h1>📊 Data Insights Report</h1>
-<div class="subtitle">Week 1 — Java-for-Data-Analysis task</div>
+<div class="subtitle">Week 1 — Python-for-Data-Analysis task, completed in Java (Spring Boot)</div>
 
 <div class="card">
   <h2>1. Data Summary (equivalent of df.describe())</h2>
@@ -104,9 +104,7 @@
 const API = ""; // same-origin: Spring Boot serves API + frontend together
 
 async function fetchJson(path) {
-  const res = await 
-
-  (API + path);
+  const res = await fetch(API + path);
   return res.json();
 }
 
@@ -211,7 +209,7 @@ async function loadCharts() {
     options: { plugins: { title: { display: true, text: "Salary by Employee" } } }
   });
 
-  // Chart: Age vs Salary 
+  // Chart: Age vs Salary scatter
   const points = raw.filter(r => r.Age && r.Salary).map(r => ({x: parseFloat(r.Age), y: parseFloat(r.Salary)}));
   new Chart(document.getElementById("chartAgeSalary"), {
     type: "scatter",
@@ -226,7 +224,7 @@ async function loadCharts() {
 loadSummary();
 loadMissing();
 loadDtypes();
-loadCharts();// here have called all the methods
+loadCharts();
 </script>
 
 </body>

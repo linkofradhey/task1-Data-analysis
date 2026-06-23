@@ -10,10 +10,6 @@ import java.util.Map;
 /**
  * AnalysisController
  *
- * REST endpoints for the Week 1 data analysis task. Runs under the SAME
- * embedded Tomcat server as the static frontend (no separate server needed) -
- * everything is started by one "Run As -> Spring Boot App" in STS.
- *
  *   GET /api/summary  -> equivalent of df.describe()
  *   GET /api/missing  -> equivalent of df.isnull().sum()
  *   GET /api/dtypes   -> equivalent of df.dtypes
