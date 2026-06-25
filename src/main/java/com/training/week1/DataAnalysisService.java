@@ -1,33 +1,69 @@
 package com.training.week1;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import jakarta.annotation.PostConstruct;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * DataAnalysisService
- *
- * Loads the configured CSV file once when the Spring app starts
- * (@PostConstruct), then exposes the same analysis steps the Python
- * Pandas task asked for: summary, missing values, dtypes, raw rows.
- *
- * Marked @Service so Spring manages it as a singleton bean and can
- * inject it straight into the REST controller.
- */
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import jakarta.annotation.PostConstruct;
+
+
 @Service
 public class DataAnalysisService {
 
     // Reads "app.dataset.path" from application.properties.
     // Defaults to sample_data.csv if not set.
-    @Value("${app.dataset.path:sample_data.csv}")
+//    @Value("${app.dataset.path:sample_data.csv}")
+	
+	@Value("${app.dataset.path:sample_data.csv}")
     private String datasetPath;
 
     private CsvLoader dataset;
+
+    public DataAnalysisService(CsvLoader csvLoader) {
+        this.dataset = csvLoader;
+    }
+    public List<String> getHeaders() {
+        if (dataset.rows == null || dataset.rows.isEmpty()) 
+            return Collections.emptyList();
+        return new ArrayList<>(dataset.rows.get(0).keySet());
+    }
+    
+    // ── Returns unified list: each entry knows its column name,
+    //    type, and stats — ExportService builds headers from this ──
+//    public List<DataSummary.ColumnResult> getDataSummary() {
+//        return DataSummary.summarizeAll(dataset);  // ← your existing static method
+//    }
+
+    // ── Raw rows — ExportService reads keys of first row as headers ──
+    public List<Map<String, String>> getRaw() {
+        return Collections.unmodifiableList(dataset.rows);
+    }
+
+    // ── Missing value counts per column ──
+//    public Map<String, Integer> getMissing() {
+//        Map<String, Integer> result = new LinkedHashMap<>();
+//        for (String col : dataset.rows.get(0).keySet()) {
+//            int missing = (int) dataset.rows.stream()
+//                .filter(r -> r.get(col) == null || r.get(col).isEmpty())
+//                .count();
+//            result.put(col, missing);
+//        }
+//        return result;
+//    }
+//
+//    // ── Data type per column ──
+//    public Map<String, String> getDtypes() {
+//        Map<String, String> result = new LinkedHashMap<>();
+//        for (String col : dataset.rows.get(0).keySet()) {
+//            result.put(col, DataTypeDetector.detect(dataset, col)); // your existing logic
+//        }
+//        return result;
+//    }
 
     @PostConstruct
     public void init() throws IOException {
@@ -48,7 +84,7 @@ public class DataAnalysisService {
             dto.column = col;
 
             if (type == DataTypeAnalyzer.ColumnType.INTEGER || type == DataTypeAnalyzer.ColumnType.FLOAT) {
-                DataSummary.NumericSummary s = DataSummary.summarizeNumeric(dataset, col);
+                DataSummary.NumericSummary s = DataSummary.summarizeNumeric(dataset, col);//gets the data and load then in the dto
                 dto.type = "numeric";
                 dto.count = s.count;
                 dto.mean = round2(s.mean);
@@ -68,8 +104,10 @@ public class DataAnalysisService {
         }
         return result;
     }
-
-    /** Equivalent of df.isnull().sum() */
+    public List<DataSummary.ColumnResult> getDataSummary() {
+        return DataSummary.summarizeAll(dataset);
+    }
+    
     public List<AnalysisDtos.MissingDto> getMissing() {
         List<AnalysisDtos.MissingDto> result = new ArrayList<>();
         for (MissingValueDetector.MissingInfo m : MissingValueDetector.detect(dataset)) {
@@ -78,7 +116,7 @@ public class DataAnalysisService {
         return result;
     }
 
-    /** Equivalent of df.dtypes */
+   
     public List<AnalysisDtos.DtypeDto> getDtypes() {
         List<AnalysisDtos.DtypeDto> result = new ArrayList<>();
         Map<String, DataTypeAnalyzer.ColumnType> types = DataTypeAnalyzer.inferTypes(dataset);
@@ -88,12 +126,12 @@ public class DataAnalysisService {
         return result;
     }
 
-    /** Raw rows, used by the frontend to draw charts */
-    public List<Map<String, String>> getRaw() {
-        return dataset.rows;
-    }
+    
+//    public List<Map<String, String>> getRaw() {
+//        return dataset.rows;
+//    }
 
     private double round2(double value) {
-        return Math.round(value * 100.0) / 100.0;
+        return Math.round(value * 100.0) / 100.0;//to have only two decimal
     }
 }

@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Service;
+
 /**
  * CsvLoader - Equivalent of Python's pandas.read_csv()
  *
@@ -17,13 +19,14 @@ import java.util.Map;
  * raw Strings at this stage (type inference happens later,
  * just like pandas infers dtypes after loading).
  */
+@Service
 public class CsvLoader {
 
     public List<String> headers = new ArrayList<>();
     public List<Map<String, String>> rows = new ArrayList<>();
 
     public void load(String filePath) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(filePath));
+        List<String> lines = Files.readAllLines(Paths.get(filePath));//headder as one string , no1 line as a subrate line 
         if (lines.isEmpty()) {
             throw new IOException("CSV file is empty: " + filePath);
         }
@@ -47,11 +50,6 @@ public class CsvLoader {
         }
     }
 
-    /**
-     * Simple CSV line splitter. Handles basic comma-separated values.
-     * (Doesn't handle quoted commas - fine for straightforward datasets;
-     * mention to instructor if your real dataset has commas inside quoted fields.)
-     */
     private List<String> splitCsvLine(String line) {
         return Arrays.asList(line.split(",", -1));
     }

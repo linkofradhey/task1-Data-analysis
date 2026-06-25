@@ -1,17 +1,13 @@
 package com.training.week1;
 
-/**
- * Response DTOs (Data Transfer Objects).
- *
- * Spring Boot auto-converts these to JSON using Jackson under the hood
- * (no manual JSON string-building needed, unlike a plain-Java HTTP server).
- * Field names here become the JSON keys automatically.
- */
+import lombok.Getter;
+import lombok.Setter;
+
 public class AnalysisDtos {
 
     public static class ColumnSummaryDto {
         public String column;
-        public String type;       // "numeric" or "categorical"
+        public String type;       
         public int count;
         public Double mean;
         public Double std;
@@ -22,7 +18,9 @@ public class AnalysisDtos {
         public String mostFrequent;
         public Integer mostFrequentCount;
     }
-
+    
+    @Getter	
+    @Setter
     public static class MissingDto {
         public String column;
         public int missingCount;
@@ -35,6 +33,8 @@ public class AnalysisDtos {
         }
     }
 
+    @Getter
+    @Setter
     public static class DtypeDto {
         public String column;
         public String dtype;

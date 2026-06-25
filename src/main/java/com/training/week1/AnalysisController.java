@@ -7,21 +7,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-/**
- * AnalysisController
- *
- *   GET /api/summary  -> equivalent of df.describe()
- *   GET /api/missing  -> equivalent of df.isnull().sum()
- *   GET /api/dtypes   -> equivalent of df.dtypes
- *   GET /api/raw      -> raw rows, used by the frontend to draw charts
- */
 @RestController
 @RequestMapping("/api")
 public class AnalysisController {
 
     private final DataAnalysisService service;
 
-    // Constructor injection - Spring automatically wires the service bean in
     public AnalysisController(DataAnalysisService service) {
         this.service = service;
     }

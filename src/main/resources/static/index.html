@@ -1,231 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Week 1 - Data Analysis Report (Java)</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f4f6f8;
-    margin: 0;
-    padding: 30px;
-    color: #2b2f33;
-  }
-  h1 { margin-bottom: 4px; }
-  .subtitle { color: #666; margin-bottom: 30px; }
-  .card {
-    background: #fff;
-    border-radius: 10px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  }
-  .card h2 {
-    margin-top: 0;
-    font-size: 18px;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-  th, td {
-    text-align: left;
-    padding: 8px 10px;
-    border-bottom: 1px solid #eee;
-  }
-  th { background: #fafafa; color: #555; }
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-  .badge-numeric { background: #e3f2fd; color: #1565c0; }
-  .badge-categorical { background: #fff3e0; color: #e65100; }
-  .missing-bar-bg {
-    background: #eee;
-    border-radius: 6px;
-    height: 10px;
-    width: 100%;
-    overflow: hidden;
-  }
-  .missing-bar-fill {
-    background: #e53935;
-    height: 100%;
-  }
-  .charts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-  @media (max-width: 800px) {
-    .charts-grid { grid-template-columns: 1fr; }
-  }
-  .loading { color: #888; font-style: italic; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analysis Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6f9;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 6px;
+            color: #2c3e50;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 28px;
+            font-size: 0.95rem;
+        }
+
+        /* ─── Card Section ─── */
+        .section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h2 {
+            margin-bottom: 12px;
+            color: #34495e;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 6px;
+            display: inline-block;
+        }
+
+        /* ─── Tables ─── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 0.88rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #3498db;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        /* ─── Charts Grid ─── */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .chart-card {
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .chart-card h3 {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .chart-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        /* ─── Status Messages ─── */
+        .loading {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-style: italic;
+        }
+
+        .chart-error {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+		.export-btn {
+		    display: inline-block;
+		    padding: 10px 22px;
+		    margin: 6px;
+		    background: #2980b9;
+		    color: #fff;
+		    text-decoration: none;
+		    border-radius: 6px;
+		    font-size: 0.9rem;
+		    transition: background 0.2s;
+		}
+
+		.export-btn:hover {
+		    background: #1f6da0;
+		}
+        /* ─── Responsive ─── */
+        @media (max-width: 800px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<h1>📊 Data Insights Report</h1>
-<div class="subtitle">Week 1 — Java-for-Data-Analysis task</div>
+    <h1>📊 Data Analysis Dashboard</h1>
+    <div class="subtitle">Week 1 — Java-for-Data-Analysis</div>
 
-<div class="card">
-  <h2>1. Data Summary (equivalent of df.describe())</h2>
-  <div id="summary-table" class="loading">Loading...</div>
-</div>
+    <!-- ─── 1. Summary Statistics ─── -->
+    <div class="section">
+        <h2>1. Summary Statistics</h2>
+        <div id="summary-container">
+            <p class="loading">Loading summary...</p>
+        </div>
+    </div>
 
-<div class="card">
-  <h2>2. Missing Value Detection (equivalent of df.isnull().sum())</h2>
-  <div id="missing-table" class="loading">Loading...</div>
-</div>
+    <!-- ─── 2. Missing Values ─── -->
+    <div class="section">
+        <h2>2. Missing Values</h2>
+        <div id="missing-container">
+            <p class="loading">Loading missing values...</p>
+        </div>
+    </div>
 
-<div class="card">
-  <h2>3. Data Type Analysis (equivalent of df.dtypes)</h2>
-  <div id="dtypes-table" class="loading">Loading...</div>
-</div>
+    <!-- ─── 3. Inferred Data Types ─── -->
+    <div class="section">
+        <h2>3. Inferred Data Types</h2>
+        <div id="dtypes-container">
+            <p class="loading">Loading data types...</p>
+        </div>
+    </div>
 
-<div class="card">
-  <h2>4. Visualizations (equivalent of Matplotlib / Seaborn)</h2>
-  <div class="charts-grid">
-    <div><canvas id="chartMissing"></canvas></div>
-    <div><canvas id="chartDept"></canvas></div>
-    <div><canvas id="chartSalary"></canvas></div>
-    <div><canvas id="chartAgeSalary"></canvas></div>
-  </div>
-</div>
+    <!-- ─── 4. Raw Data ─── -->
+    <div class="section">
+        <h2>4. Raw Data (CSV Rows)</h2>
+        <div id="raw-container">
+            <p class="loading">Loading raw data...</p>
+        </div>
+    </div>
 
-<script>
-const API = ""; // same-origin: Spring Boot serves API + frontend together
+    <!-- ─── 5. Server-Generated Charts ─── -->
+    <div class="section">
+        <h2>5. Visualizations (Server-Generated Charts)</h2>
+        <div class="charts-grid">
 
-async function fetchJson(path) {
-  const res = await fetch(API + path);
-  return res.json();
-}
+            <!-- Bar Chart: Missing Values -->
+            <div class="chart-card">
+                <h3>Missing Values per Column</h3>
+                <img id="chartMissing" alt="Loading bar chart..." />
+                <p id="chartMissingError" class="chart-error" style="display:none;"></p>
+            </div>
 
-function badge(type) {
-  return type === "numeric"
-    ? '<span class="badge badge-numeric">numeric</span>'
-    : '<span class="badge badge-categorical">categorical</span>';
-}
+            <!-- Pie Chart: Department Distribution -->
+            <div class="chart-card">
+                <h3>Employee Count by Department</h3>
+                <img id="chartDept" alt="Loading pie chart..." />
+                <p id="chartDeptError" class="chart-error" style="display:none;"></p>
+            </div>
 
-async function loadSummary() {
-  const data = await fetchJson("/api/summary");
-  let html = `<table><tr><th>Column</th><th>Type</th><th>Count</th><th>Mean/Top</th><th>Std/Unique</th><th>Min/Most Freq</th><th>Max</th><th>Median</th></tr>`;
-  data.forEach(row => {
-    if (row.type === "numeric") {
-      html += `<tr>
-        <td><b>${row.column}</b></td>
-        <td>${badge(row.type)}</td>
-        <td>${row.count}</td>
-        <td>${row.mean}</td>
-        <td>${row.std}</td>
-        <td>${row.min}</td>
-        <td>${row.max}</td>
-        <td>${row.median}</td>
-      </tr>`;
-    } else {
-      html += `<tr>
-        <td><b>${row.column}</b></td>
-        <td>${badge(row.type)}</td>
-        <td>${row.count}</td>
-        <td>${row.mostFrequent}</td>
-        <td>${row.unique}</td>
-        <td>${row.mostFrequentCount}×</td>
-        <td>-</td>
-        <td>-</td>
-      </tr>`;
-    }
-  });
-  html += `</table>`;
-  document.getElementById("summary-table").innerHTML = html;
-}
+        </div>
+    </div>
+	<div class="export-section">
+	    <h2>📥 Export Dashboard</h2>
+	    <a href="/api/export/all" class="export-btn">📦 Download Full Report (ZIP)</a>
+	    <a href="/api/export/excel" class="export-btn">📊 Download Excel Report</a>
+	</div>
 
-async function loadMissing() {
-  const data = await fetchJson("/api/missing");
-  let html = `<table><tr><th>Column</th><th>Missing Count</th><th>Missing %</th><th></th></tr>`;
-  data.forEach(row => {
-    html += `<tr>
-      <td>${row.column}</td>
-      <td>${row.missingCount}</td>
-      <td>${row.missingPercent}%</td>
-      <td style="width:200px">
-        <div class="missing-bar-bg"><div class="missing-bar-fill" style="width:${row.missingPercent}%"></div></div>
-      </td>
-    </tr>`;
-  });
-  html += `</table>`;
-  document.getElementById("missing-table").innerHTML = html;
+    <script>
+        // ═══════════════════════════════════════════════════
+        //  HELPER: Build HTML table from any JSON array
+        // ═══════════════════════════════════════════════════
+        function buildTable(dataArray) {
+            if (!dataArray || dataArray.length === 0) {
+                return '<p class="error">No data available.</p>';
+            }
 
-  // Chart: missing values bar chart
-  new Chart(document.getElementById("chartMissing"), {
-    type: "bar",
-    data: {
-      labels: data.map(d => d.column),
-      datasets: [{ label: "Missing Count", data: data.map(d => d.missingCount), backgroundColor: "#e53935" }]
-    },
-    options: { plugins: { title: { display: true, text: "Missing Values per Column" } } }
-  });
-}
+            const headers = Object.keys(dataArray[0]);
 
-async function loadDtypes() {
-  const data = await fetchJson("/api/dtypes");
-  let html = `<table><tr><th>Column</th><th>Inferred Type</th></tr>`;
-  data.forEach(row => {
-    html += `<tr><td>${row.column}</td><td><code>${row.dtype}</code></td></tr>`;
-  });
-  html += `</table>`;
-  document.getElementById("dtypes-table").innerHTML = html;
-}
+            let html = '<table>';
 
-async function loadCharts() {
-  const raw = await fetchJson("/api/raw");
+            // Header row
+            html += '<thead><tr>';
+            headers.forEach(h => html += `<th>${h}</th>`);
+            html += '</tr></thead>';
 
-  // Chart: count by Department
-  const deptCounts = {};
-  raw.forEach(r => { if (r.Department) deptCounts[r.Department] = (deptCounts[r.Department]||0)+1; });
-  new Chart(document.getElementById("chartDept"), {
-    type: "pie",
-    data: {
-      labels: Object.keys(deptCounts),
-      datasets: [{ data: Object.values(deptCounts), backgroundColor: ["#42a5f5","#66bb6a","#ffa726","#ab47bc"] }]
-    },
-    options: { plugins: { title: { display: true, text: "Employee Count by Department" } } }
-  });
+            // Body rows
+            html += '<tbody>';
+            dataArray.forEach(row => {
+                html += '<tr>';
+                headers.forEach(h => html += `<td>${row[h] ?? '-'}</td>`);
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
 
-  // Chart: Salary distribution
-  const salaries = raw.map(r => parseFloat(r.Salary)).filter(v => !isNaN(v));
-  new Chart(document.getElementById("chartSalary"), {
-    type: "bar",
-    data: {
-      labels: raw.filter(r=>r.Salary).map(r => r.Name),
-      datasets: [{ label: "Salary", data: salaries, backgroundColor: "#42a5f5" }]
-    },
-    options: { plugins: { title: { display: true, text: "Salary by Employee" } } }
-  });
+            return html;
+        }
 
-  // Chart: Age vs Salary scatter
-  const points = raw.filter(r => r.Age && r.Salary).map(r => ({x: parseFloat(r.Age), y: parseFloat(r.Salary)}));
-  new Chart(document.getElementById("chartAgeSalary"), {
-    type: "scatter",
-    data: { datasets: [{ label: "Age vs Salary", data: points, backgroundColor: "#ab47bc" }] },
-    options: {
-      plugins: { title: { display: true, text: "Age vs Salary" } },
-      scales: { x: { title: { display: true, text: "Age" } }, y: { title: { display: true, text: "Salary" } } }
-    }
-  });
-}
+        // ═══════════════════════════════════════════════════
+        //  LOAD JSON ENDPOINT → Render as Table
+        // ═══════════════════════════════════════════════════
+        async function loadAndRender(endpoint, containerId) {
+            const container = document.getElementById(containerId);
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const data = await response.json();
+                container.innerHTML = buildTable(data);
+            } catch (err) {
+                container.innerHTML = `<p class="error">Failed to load ${endpoint}: ${err.message}</p>`;
+                console.error(`Error fetching ${endpoint}:`, err);
+            }
+        }
 
-loadSummary();
-loadMissing();
-loadDtypes();
-loadCharts();
-</script>
+        // ═══════════════════════════════════════════════════
+        //  LOAD CHART IMAGE ENDPOINT → Render as <img>
+        // ═══════════════════════════════════════════════════
+        async function loadServerChart(endpoint, imgId, errorId) {
+            const img = document.getElementById(imgId);
+            const errorEl = document.getElementById(errorId);
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                // Convert response to a Blob and create an Object URL
+                const blob = await response.blob();
+                img.src = URL.createObjectURL(blob);
+                img.alt = "Chart loaded successfully";
+            } catch (err) {
+                img.style.display = 'none';
+                errorEl.style.display = 'block';
+                errorEl.textContent = `Failed to load chart: ${err.message}`;
+                console.error(`Chart error [${endpoint}]:`, err);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════
+        //  INIT: Fire all requests on page load
+        // ═══════════════════════════════════════════════════
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // ── JSON Tables (all 4 fire in parallel) ──
+            loadAndRender('/api/summary', 'summary-container');
+            loadAndRender('/api/missing', 'missing-container');
+            loadAndRender('/api/dtypes',  'dtypes-container');
+            loadAndRender('/api/raw',     'raw-container');
+
+            // ── Server-Generated Chart Images ──
+            loadServerChart('/api/charts/bar/missing',   'chartMissing', 'chartMissingError');
+            loadServerChart('/api/charts/pie/department', 'chartDept',    'chartDeptError');
+        });
+    </script>
 
 </body>
 </html>
