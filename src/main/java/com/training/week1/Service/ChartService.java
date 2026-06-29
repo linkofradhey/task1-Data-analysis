@@ -22,13 +22,11 @@ public class ChartService {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		data.forEach(dto -> dataset.addValue(dto.missingCount, "Count", dto.column));
 
-		// 2. Create the chart
-		JFreeChart barChart = ChartFactory.createBarChart(title, // Chart title
-				"Category", // X-axis label
-				"Value", // Y-axis label
+		JFreeChart barChart = ChartFactory.createBarChart(title, 
+				"Category", 
+				"Value", 
 				dataset);
 
-		// 3. Render to PNG bytes
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ChartUtils.writeChartAsPNG(baos, barChart, 800, 500);
 		return baos.toByteArray();
@@ -37,18 +35,15 @@ public class ChartService {
 	public byte[] generatePieChart(List<Map<String, String>> data, String categoryColumn, String title)
 			throws IOException {
 
-		// 1. Count occurrences per category
 		Map<String, Integer> counts = new LinkedHashMap<>();
 		data.forEach(row -> {
 			String key = row.getOrDefault(categoryColumn, "Unknown");
 			counts.merge(key, 1, Integer::sum);
 		});
 
-		// 2. Build the pie dataset
 		DefaultPieDataset dataset = new DefaultPieDataset();
 		counts.forEach((label, count) -> dataset.setValue(label, count));
 
-		// 3. Create the chart
 		JFreeChart pieChart = ChartFactory.createPieChart(title, // Chart title
 				dataset, // Data
 				true, // Show legend

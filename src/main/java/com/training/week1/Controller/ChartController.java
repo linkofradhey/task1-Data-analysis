@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,11 +15,13 @@ import com.training.week1.Service.ChartService;
 import com.training.week1.Service.DataAnalysisService;
 
 @RestController
-@RequestMapping("/api/charts")
+@RequestMapping("/api/chart")
 public class ChartController {
 
-    private final DataAnalysisService dataAnalysisService;
-    private final ChartService chartService;
+	@Autowired
+    private  DataAnalysisService dataAnalysisService;
+    @Autowired
+	private  ChartService chartService;
 
     public ChartController(DataAnalysisService dataAnalysisService) {
         this.dataAnalysisService = dataAnalysisService;
